@@ -1,103 +1,110 @@
-
-# Finger Gun Detection and Shooting Game
+# Gesture-Controlled Shooting Game
 
 ## Overview
+This project is a gesture-controlled shooting game implemented in Python using OpenCV and MediaPipe. Players can interact with the game by forming a "finger-gun" gesture to aim and shoot at moving targets on the screen. The program uses hand gesture recognition to detect shooting actions and compute aim trajectories, providing an engaging and intuitive experience.
 
-This project implements a real-time computer vision-based game where the user can shoot targets by performing a "finger gun" gesture. The program utilizes the MediaPipe Hands library for hand landmark detection and OpenCV for video processing and rendering.
+---
 
 ## Features
 
--   **Hand Gesture Recognition**: Detects finger gun gestures using MediaPipe hand landmarks.
--   **Target Shooting Mechanism**: Aims and shoots at moving targets by simulating a "bang" effect when the gesture is detected.
--   **Real-Time Feedback**: Visualizes the aim trajectory and gesture status on the camera feed.
--   **Score Tracking**: Updates and displays the score based on successful target hits.
+### 1. **Hand Gesture Detection**
+- Utilizes MediaPipe's hand landmark detection to identify hand gestures.
+- Detects the "finger-gun" gesture with confidence scoring based on the position and orientation of the index finger and thumb.
 
-## Requirements
+### 2. **Shooting Mechanism**
+- Recognizes a "shoot" action based on thumb movements relative to other fingers.
+- Implements state management for the hand, transitioning between `READY`, `MOVING`, and `SHOT` states.
 
--   Python 3.8+
--   OpenCV
--   MediaPipe
--   NumPy
+### 3. **Aim and Trajectory Calculation**
+- Calculates the aim direction based on the relative position of the index finger joints.
+- Smoothens aiming using a history buffer and weighted averaging to handle noise.
 
-Install dependencies using pip:
+### 4. **Targets and Scoring**
+- Randomly spawns moving targets on the screen.
+- Allows players to shoot and destroy targets, earning points.
 
-```bash
-pip install opencv-python mediapipe numpy
+### 5. **Visual Effects**
+- Displays real-time feedback, including:
+  - Aim lines extending from the player's finger-gun gesture.
+  - Animated "BANG!" effect when a shot is fired.
+  - Target color change and explosion effect upon hit.
 
-```
+---
 
 ## How It Works
 
-1.  **Hand Tracking**:
-    
-    -   Detects hand landmarks in real-time using MediaPipe.
-    -   Analyzes the positions and movements of the thumb and index finger to recognize a finger gun gesture.
-2.  **Shooting Mechanism**:
-    
-    -   Detects when the thumb moves rapidly forward to simulate a "shooting" action.
-    -   Calculates the aim vector based on the finger direction and checks if any target is hit along the trajectory.
-3.  **Game Logic**:
-    
-    -   Spawns moving targets randomly on the screen.
-    -   Updates the player's score for every successful target hit.
-    -   Displays feedback, including the aim line, "BANG!" text, and visual effects when a shot is fired.
+### 1. **Gesture Detection**
+The program uses MediaPipe to detect hand landmarks and analyze gestures. The following criteria define the "finger-gun" gesture:
+- **Index Finger:** Fully extended (measured by comparing joint positions).
+- **Middle, Ring, and Pinky Fingers:** Folded (measured by relative distances to the palm).
+- **Thumb:** Positioned at an angle that aligns with the finger-gun gesture.
 
-## Code Structure
+### 2. **Shooting Action**
+- Tracks thumb movement over time using a history buffer.
+- Detects rapid upward motion of the thumb to trigger a "SHOT" state.
+- Implements cooldowns and debounce logic to avoid accidental repeated shots.
 
--   **`ThumbPosition` and `ThumbState` Classes**: Handle thumb position and movement states.
--   **`Target` Class**: Represents a target object with properties for movement, position, and hit detection.
--   **Gesture Recognition**: Implements logic for detecting finger gun gestures using landmark positions.
--   **Shooting Detection**: Tracks thumb movements to determine when a shot is fired.
--   **Game Loop**: Handles video capture, hand detection, target spawning, and score updates.
+### 3. **Aiming and Shooting**
+- Calculates aim direction using the midpoint of the index finger's PIP and TIP joints.
+- Smooths aim vector using a weighted history of recent movements to improve stability.
+- Determines if a target is hit by projecting the aim vector and measuring proximity to targets.
 
-## Usage
+### 4. **Target Management**
+- Targets move horizontally across the screen.
+- A limited number of targets are active at a time, with a random chance to spawn new targets.
+- Upon being hit, targets change color and are removed from the active list.
 
-1.  Run the script:
-    
-    ```bash
-    python your_script.py
-    
-    ```
-    
-2.  Point your camera at your hand and perform a "finger gun" gesture:
-    -   Extend your index finger.
-    -   Fold your middle, ring, and pinky fingers.
-    -   Position your thumb to point up or outwards.
-3.  Aim at the targets and "shoot" by moving your thumb forward quickly.
-4.  Track your score as you hit the targets!
+---
 
-## Key Configurations
+## Installation
 
--   **Target Settings**:
-    -   `TARGET_SPEED`: Speed of target movement.
-    -   `TARGET_SIZE`: Radius of the targets.
-    -   `MAX_TARGETS`: Maximum number of targets on screen.
--   **Gesture Detection**:
-    -   `INDEX_EXTENSION_THRESHOLD`: Threshold for detecting index finger extension.
-    -   `FINGER_FOLD_THRESHOLD`: Threshold for detecting folded fingers.
--   **Shooting Logic**:
-    -   `SHOT_COOLDOWN`: Minimum time between shots.
-    -   `MIN_SHOT_MOVEMENT`: Minimum thumb movement to trigger a shot.
+### Prerequisites
+- Python 3.7+
+- OpenCV (`cv2`)
+- MediaPipe
+- NumPy
 
-## Output
+### Setup
+1. Clone this repository:
+   ```bash
+   git clone <repository_url>
+   cd <repository_directory>
+   ```
+2. Install dependencies:
+   ```bash
+   pip install opencv-python mediapipe numpy
+   ```
+3. Run the game:
+   ```bash
+   python main.py
+   ```
 
--   Real-time display of the camera feed with the following overlays:
-    -   Detected landmarks and hand connections.
-    -   Targets moving across the screen.
-    -   Aim trajectory line and shooting effects.
-    -   Score displayed in the top-right corner.
+---
 
-## Future Improvements
+## Controls
+- **Form a "finger-gun" gesture:** Aim at the targets.
+- **Shoot:** Perform a quick upward motion with your thumb.
 
--   Add sound effects for shooting and target hits.
--   Include different difficulty levels with varying target speeds and sizes.
--   Implement multi-hand support for dual-hand gameplay.
+---
+
+## Configuration
+- Modify the constants at the top of the script to adjust gameplay:
+  - `SHOT_COOLDOWN`: Minimum time between consecutive shots.
+  - `TARGET_SPEED`: Speed of moving targets.
+  - `TARGET_SPAWN_RATE`: Probability of spawning new targets.
+  - `SHOT_RANGE`: Maximum range for detecting target hits.
+
+---
 
 ## Acknowledgments
+- **MediaPipe Hands** for robust hand tracking and landmark detection.
+- **OpenCV** for video processing and visualization.
 
--   [MediaPipe](https://mediapipe.dev/) for providing an easy-to-use library for hand detection.
--   [OpenCV](https://opencv.org/) for video capture and processing.
+---
 
-## License
+## Future Improvements
+- Add sound effects for shooting and target hits.
+- Implement a game timer and leaderboard.
+- Support for multiple players and competitive modes.
+- Enhance gesture recognition to support additional actions.
 
-This project is licensed under the MIT License.
